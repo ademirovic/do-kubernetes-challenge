@@ -1,0 +1,38 @@
+{
+  "type": "record",
+  "namespace": "schemas",
+  "name": "Purchase",
+  "doc": "This is the schema for a an ice cream purchase event",
+  "fields": [
+      {
+        "name": "purchase_id",
+        "type": {
+            "type": "string",
+            "logicalType": "uuid"
+        }
+      },
+      {
+        "name": "shop_id",
+        "type": {
+            "type": "string",
+            "logicalType": "uuid"
+        }
+      },
+      {
+        "name": "timestamp",
+        "type": {
+            "type": "long",
+            "logicalType": "timestamp-millis"
+        }
+      },
+      {
+        "name": "scoops",
+        "type": {
+            "type": "array",
+            "name": "scoops",
+            "items": "Scoop",
+            "minItems": 1
+        }
+      }
+    ]
+  }

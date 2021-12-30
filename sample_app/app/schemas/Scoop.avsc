@@ -1,0 +1,24 @@
+{
+  "type": "record",
+  "namespace": "schemas",
+  "name": "Scoop",
+  "doc": "This is the schema for a an ice cream scoop",
+  "fields": [
+      {
+        "name": "type",
+        "type": {
+            "type": "enum",
+            "name": "type",
+            "symbols" : ["banana", "chocolate", "lemon", "pistachio", "raspberry", "strawberry", "vanilla"]
+        }
+      },
+      {
+        "name": "quantity",
+        "type": "int"
+      },
+      {
+        "name": "price",
+        "type": "int"
+      }
+    ]
+}
