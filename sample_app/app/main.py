@@ -8,9 +8,9 @@ from uuid import UUID
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from elastic_wrapper.elasticsearch_wrapper import ElasticSearchWrapper
 
 from config import settings
+from elastic_wrapper.elasticsearch_wrapper import ElasticSearchWrapper
 from model import Purchase
 from messaging.producer import Producer
 
@@ -23,7 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 producer = Producer(settings.KAFKA_URL, settings.KAFKA_TOPIC, settings.KAFKA_CLIENT_ID)
 elastic_search = ElasticSearchWrapper(settings.ELASTIC_URL, settings.ELASTIC_INDEX)
