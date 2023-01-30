@@ -10,7 +10,7 @@ import fastavro
 from aiokafka import AIOKafkaProducer
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from elasticsearch import AsyncElasticsearch
+from elastic_wrapper.elasticsearch_wrapper import ElasticSearchWrapper
 
 from config import settings
 from model import Purchase
@@ -38,7 +38,7 @@ avro_schema = fastavro.schema.load_schema_ordered(
 )
 
 aioproducer = None
-es = AsyncElasticsearch([settings.ELASTIC_URL])
+elastic_search = ElasticSearchWrapper(settings.ELASTIC_URL, settings.ELASTIC_INDEX)
 
 
 @app.on_event("startup")
@@ -55,7 +55,7 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     await aioproducer.stop()
-    await es.close()
+    await elastic_search.stop()
 
 
 @app.get("/")
@@ -76,17 +76,7 @@ async def get_purchases(
     shop_id: UUID, date: Optional[datetime.date] = datetime.date.today()
 ):
     """Get ice cream purchase events of specific shop that happened on designated date."""
-    index = f"{settings.ELASTIC_INDEX}-{date.isoformat()}"
-
-    if not await es.indices.exists(index=index):
-        return []
-
-    result = await es.search(
-        index=index,
-        sort=[{"doc.data.timestamp": {"unmapped_type": "boolean", "order": "desc"}}],
-        query={"match": {"doc.data.shop_id": shop_id}},
-    )
-    return result["hits"]["hits"]
+    return await elastic_search.get_purchases(shop_id, date)
 
 
 @app.get("/healthz")
