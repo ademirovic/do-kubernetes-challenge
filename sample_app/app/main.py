@@ -12,8 +12,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from elasticsearch import AsyncElasticsearch
 
-from app.config import settings
-from app.model import Purchase
+from config import settings
+from model import Purchase
 
 app = FastAPI(title="Ice Cream Purchase Analytics")
 
