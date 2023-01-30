@@ -1,7 +1,5 @@
 import datetime
-import io
 
-from functools import partial
 from typing import Optional
 from uuid import UUID
 

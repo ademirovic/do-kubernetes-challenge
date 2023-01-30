@@ -1,7 +1,8 @@
 from datetime import datetime
 from enum import Enum
-from pydantic import BaseModel, conlist, conint
 from uuid import UUID
+
+from pydantic import BaseModel, conlist, conint
 
 
 class IceCreamType(str, Enum):
