@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: web-server
-        image: ademirovic/do-k8s-challenge:0.1
+        image: ademirovic/do-k8s-challenge:0.2
         imagePullPolicy: Always
         command: ['/usr/local/bin/uvicorn']
         args:
@@ -80,7 +80,7 @@ spec:
     spec:
       containers:
       - name: consumer
-        image: ademirovic/do-k8s-challenge:0.1
+        image: ademirovic/do-k8s-challenge:0.2
         imagePullPolicy: Always
         command: ['/usr/local/bin/python']
         args:
