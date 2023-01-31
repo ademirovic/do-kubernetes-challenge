@@ -29,7 +29,7 @@ docker-compose up -d
 - Install project dependencies with [poetry](https://python-poetry.org/)
 - Start API
 ```
-uvicorn  app.main:app --reload
+uvicorn  main:app --app-dir app --reload
 ```
 - Run consumer
 ```

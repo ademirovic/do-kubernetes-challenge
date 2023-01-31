@@ -1,59 +1,29 @@
 import asyncio
-import io
-
-from functools import partial
-
-import aiokafka
-import elasticsearch
-import fastavro
-
-from elasticsearch.helpers import async_bulk
 
 from config import settings
-
-es = elasticsearch.AsyncElasticsearch([settings.ELASTIC_URL])
-
-
-def _deserialize_avro(item, schema):
-    return fastavro.schemaless_reader(io.BytesIO(item), schema)
-
-
-def _serialize_elastic(item):
-    item["timestamp"] = item["timestamp"].isoformat()
-    return item
-
-
-async def send_to_elastic(data):
-    for _tp, messages in data.items():
-        for message in messages:
-            yield {
-                "_index": f"{settings.ELASTIC_INDEX}-{message.value['timestamp'].date().isoformat()}",
-                "doc": {"data": _serialize_elastic(message.value)},
-            }
+from elastic_wrapper.elasticsearch_wrapper import ElasticSearchWrapper
+from messaging.consumer import Consumer
 
 
 async def consume():
-    avro_schema = fastavro.schema.load_schema_ordered(
-        ["app/schemas/Scoop.avsc", "app/schemas/Purchase.avsc"]
-    )
-    consumer = aiokafka.AIOKafkaConsumer(
+    elastic_search = ElasticSearchWrapper(settings.ELASTIC_URL, settings.ELASTIC_INDEX)
+    consumer = Consumer(
+        settings.KAFKA_URL,
         settings.KAFKA_TOPIC,
-        bootstrap_servers=settings.KAFKA_URL,
-        client_id=settings.KAFKA_CLIENT_ID,
-        group_id=settings.KAFKA_CONSUMER_GROUP,
-        value_deserializer=partial(_deserialize_avro, schema=avro_schema),
+        settings.KAFKA_CLIENT_ID,
+        settings.KAFKA_CONSUMER_GROUP,
+        settings.KAFKA_CONSUMER_TIMEOUT_MS,
     )
-
     await consumer.start()
 
     try:
         while True:
-            data = await consumer.getmany(timeout_ms=settings.KAFKA_CONSUMER_TIMEOUT_MS)
+            data = await consumer.getmany()
             if len(data) != 0:
-                await async_bulk(es, send_to_elastic(data))
+                await elastic_search.async_bulk(data)
     finally:
         await consumer.stop()
-        await es.close()
+        await elastic_search.stop()
 
 
 asyncio.run(consume())
